@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHoCH Detection</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222222;
+            padding: 3px;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #e0dfdf;
+        }
+        /* Estilos generales para el contenedor, encabezados y select */
+        .container {
+            margin: 4px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #1b263b;
+            border-radius: 15px;
+            box-shadow: 0px 0px 30px rgba(9, 255, 255, 0.7);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0e172a;
+            border: 2px solid #09ffcf;
+            color: #d4f1ff;
+            font-size: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            height: 40px;
+            padding: 2px;
+            background: linear-gradient(45deg, #09ffcf, #0e72ec);
+            color: #0a0f1e;
+            font-size: 18px;
+            font-family: 'Orbitron', sans-serif;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            align-items: center;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #0e72ec, #09ffcf);
+            box-shadow: 0px 0px 15px rgba(9, 255, 255, 0.9);
+        }
+        .stop-button {
+            background: linear-gradient(45deg, #ec0e0e, #09ffcf);
+            box-shadow: 0px 0px 15px rgba(9, 255, 255, 0.9);
+        }
+        button.stop-button:hover {
+            background: linear-gradient(45deg, #ec0e0e, #09ffcf);
+            box-shadow: 0px 0px 15px rgba(9, 255, 255, 0.9);
+        }
+        p {
+            text-align: center;
+            font-size: 18px;
+            color: #d3d3d3;
+        }
+        .hidden {
+            display: none;
+        }
+        #countdown {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        #market-hours {
+            margin-top: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+        #currentPrice {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #d3d3d3;
+        }
+
+        .dos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 4 columnas iguales */
+            gap: 10px; /* Espacio entre las señales */
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid #828181;
+            border-radius: 5px;
+            background-color: #2a2a2a;   
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+    <div class="dos">
+        <!-- Selección de monedas -->
+        
+        <select id="currency">
+            <option value="BTCUSDT">Bitcoin (BTC/USDT)</option>
+            <option value="ETHUSDT">Ethereum (ETH/USDT)</option>
+            <option value="BNBUSDT">Binance Coin (BNB/USDT)</option>
+            <option value="FTMUSDT">FTM (FTM/USDT)</option>
+            <option value="SOLUSDT">SOL (SOL/USDT)</option>
+            <option value="AAVEUSDT">AAVE (AAVE/USDT)</option>
+            <option value="SUPERUSDT">SUPER (SUPER/USDT)</option>
+            <option value="ARKUSDT">ARK (ARK/USDT)</option>
+            <option value="MKRUSDT">MKR (MKR/USDT)</option>
+            <option value="UNIUSDT">UNI (UNI/USDT)</option>
+            <option value="TONUSDT">TON (TON/USDT)</option>
+            <option value="WIFUSDT">WIF (WIF/USDT)</option>
+            <option value="LQTYUSDT">LQTY (LQTY/USDT)</option>
+        </select>
+
+        <!-- Selección de intervalos -->
+        
+        <select id="interval">
+            <option value="1m">1 minuto</option>
+            <option value="5m">5 minutos</option>
+            <option value="15m">15 minutos</option>
+            <option value="30m">30 minutos</option>
+            <option value="1h" selected>1 hora</option>
+            <option value="4h">4 horas</option>
+            <option value="1d">1 día</option>
+        </select>
+        <select id="limit">
+            <option value="50">50 velas</option>
+            <option value="100" selected>100 velas</option>
+            <option value="200">200 velas</option>
+            <option value="500">500 velas</option>
+            <option value="1000">1000 velas</option>
+        </select>
+    </div>
+
+        <!-- Mostrar CHoCH detectado -->
+        <p id="choch">Esperando a comenzar...</p>
+
+
+        <!-- Botones para controlar la automatización -->
+        <button id="startButton">Comenzar</button>
+        <button id="stopButton" class="stop-button hidden">Detener</button>
+
+        <!-- Temporizador de cuenta regresiva -->
+        <div id="countdown">Esperando para actualizar...</div>
+
+        <!-- Horarios de los mercados 
+        <div id="market-hours">
+            <p><strong>Horarios de los 4 mercados más grandes:</strong></p>
+            <p id="nyMarket">Nueva York: 13:00 - 21:00 UTC</p>
+            <p id="londonMarket">Londres: 08:00 - 16:00 UTC</p>
+            <p id="tokyoMarket">Tokio: 00:00 - 09:00 UTC</p>
+            <p id="sydneyMarket">Sídney: 22:00 - 07:00 UTC</p>
+        </div>
+    </div>-->
+
+
+    <script>
+        let intervalId = null;  // Para controlar el intervalo de actualización
+        let countdownTimer = null;  // Temporizador para la cuenta regresiva
+        let countdownTime = 10;  // Tiempo en segundos para la cuenta regresiva
+        let selectedCurrency = "BTCUSDT";  // Moneda seleccionada por defecto
+        let selectedInterval = "1h";  // Intervalo seleccionado por defecto
+        let selectedLimit = 100;  // Número de velas por defecto
+        let isRunning = false;  // Bandera para saber si la automatización está activa
+
+        // Función para obtener datos del precio actual de la moneda seleccionada
+        async function fetchCurrentPrice(symbol) {
+            const url = `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.price;
+        }
+
+        // Función para obtener datos de la API de Binance
+        async function fetchData(symbol, interval, limit) {
+            const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // Procesar los datos de las velas (incluyendo volumen)
+            const candles = data.map(candle => ({
+                open: parseFloat(candle[1]),
+                high: parseFloat(candle[2]),
+                low: parseFloat(candle[3]),
+                close: parseFloat(candle[4]),
+                volume: parseFloat(candle[5]) // Agregar volumen
+            }));
+
+            return candles;
+        }
+
+        // Función para obtener el volumen real desde las velas
+        function getVolumeData(candles) {
+            return candles.map(candle => candle.volume);
+        }
+
+        // Función para calcular el RSI real
+        function calculateRSI(closes, period = 14) {
+            let gains = 0, losses = 0;
+            for (let i = 1; i < period; i++) {
+                const change = closes[i] - closes[i - 1];
+                if (change > 0) gains += change;
+                else losses -= change;
+            }
+
+            const avgGain = gains / period;
+            const avgLoss = losses / period;
+            const rs = avgGain / avgLoss;
+            const rsi = 100 - (100 / (1 + rs));
+
+            return rsi;
+        }
+
+        // Función para calcular la EMA
+        function calculateEMA(prices, period) {
+            const k = 2 / (period + 1);
+            let emaArray = [prices[0]];
+
+            for (let i = 1; i < prices.length; i++) {
+                const ema = prices[i] * k + emaArray[i - 1] * (1 - k);
+                emaArray.push(ema);
+            }
+
+            return emaArray;
+        }
+
+        // Función para calcular el MACD
+        function calculateMACD(candles) {
+            const closes = candles.map(candle => candle.close);
+            const ema12 = calculateEMA(closes, 12);
+            const ema26 = calculateEMA(closes, 26);
+            
+            const macd = ema12.map((value, index) => value - ema26[index]);
+            const signal = calculateEMA(macd.slice(8), 9);
+
+            return {
+                macd: macd.slice(11),
+                signal: signal
+            };
+        }
+
+        // Función para detectar CHoCH
+            function detectCHoCH(candles, volume, rsi, macd) {
+                let swingHighs = [];
+                let swingLows = [];
+
+                for (let i = 2; i < candles.length - 2; i++) {
+                    if (candles[i].high > candles[i - 1].high && candles[i].high > candles[i + 1].high) {
+                        swingHighs.push({ index: i, price: candles[i].high });
+                    }
+                    if (candles[i].low < candles[i - 1].low && candles[i].low < candles[i + 1].low) {
+                        swingLows.push({ index: i, price: candles[i].low });
+                    }
+                }
+
+                let lastSwingHigh = swingHighs[swingHighs.length - 1];
+                let lastSwingLow = swingLows[swingLows.length - 1];
+                let currentPrice = candles[candles.length - 1].close;
+                let currentVolume = volume[volume.length - 1];
+                let currentRSI = rsi[rsi.length - 1];
+                let currentMACD = macd[macd.length - 1];
+                let chochSignal = { message: "No hay Señal", color: "gray" };
+                let sma200 = calculateSMA(candles, 200);
+                let isUptrend = sma200 !== null && currentPrice > sma200;
+
+                if (lastSwingHigh && currentPrice > lastSwingHigh.price) {
+                    if (currentVolume > averageVolume(volume) * 1.5 && currentRSI > 50 && currentMACD > 0 && !isUptrend) {
+                        chochSignal.message = "Alcista confirmado: Cambio de tendencia al alza";
+                        chochSignal.color = "green";  // Color para alcista confirmado
+                    } else {
+                        chochSignal.message = "Alcista débil: Precaución";
+                        chochSignal.color = "lightgreen";  // Color para alcista débil
+                    }
+                } else if (lastSwingLow && currentPrice < lastSwingLow.price) {
+                    if (currentVolume > averageVolume(volume) * 1.5 && currentRSI < 50 && currentMACD < 0 && isUptrend) {
+                        chochSignal.message = "Bajista confirmado: Cambio de tendencia a la baja";
+                        chochSignal.color = "red";  // Color para bajista confirmado
+                    } else {
+                        chochSignal.message = "Bajista débil: Precaución";
+                        chochSignal.color = "orange";  // Color para bajista débil
+                    }
+                }
+
+                return chochSignal;
+            }
+
+        // Función para calcular la media móvil simple (SMA)
+        function calculateSMA(candles, period) {
+            if (candles.length < period) return null;
+            const sum = candles.slice(-period).reduce((acc, candle) => acc + candle.close, 0);
+            return sum / period;
+        }
+
+        // Función para calcular el volumen promedio
+        function averageVolume(volume) {
+            return volume.reduce((acc, v) => acc + v, 0) / volume.length;
+        }
+
+        // Función para iniciar la detección automática
+        function startAutomation() {
+            if (intervalId !== null) {
+                clearInterval(intervalId);  // Detener cualquier intervalo previo
+            }
+            if (countdownTimer !== null) {
+                clearInterval(countdownTimer);  // Detener cualquier temporizador previo
+            }
+            countdownTime = 10;  // Reiniciar el tiempo de cuenta regresiva
+            countdownTimer = setInterval(updateCountdown, 1000);  // Actualizar cada segundo
+            intervalId = setInterval(main, 10000);  // Actualizar cada 10 segundos
+        }
+
+        // Función para detener la automatización
+        function stopAutomation() {
+            if (intervalId !== null) {
+                clearInterval(intervalId);  // Detener el intervalo
+                intervalId = null;
+            }
+            if (countdownTimer !== null) {
+                clearInterval(countdownTimer);  // Detener el temporizador
+                countdownTimer = null;
+                document.getElementById("countdown").textContent = "Detenido";
+            }
+        }
+
+        // Función para actualizar el temporizador de cuenta regresiva
+        function updateCountdown() {
+            document.getElementById("countdown").textContent = `Esperando ${countdownTime} segundos...`;
+            if (countdownTime === 0) {
+                clearInterval(countdownTimer);  // Detener el temporizador
+                countdownTimer = null;  // Reiniciar el temporizador
+            }
+            countdownTime--;
+        }
+
+        // Función principal que ejecuta todo
+            async function main() {
+                if (!isRunning) return;  // No ejecutar si no se ha comenzado
+
+                const candles = await fetchData(selectedCurrency, selectedInterval, selectedLimit);
+                const volume = getVolumeData(candles);
+                const rsi = candles.map(candle => candle.close);
+                const macd = calculateMACD(candles);
+
+                const chochResult = detectCHoCH(candles, volume, rsi, macd);
+                const chochDisplay = document.getElementById("choch");
+
+                // Mostrar el mensaje y aplicar el color
+                chochDisplay.textContent = `Mercado: ${chochResult.message}`;
+                chochDisplay.style.color = chochResult.color;
+
+                const currentPrice = await fetchCurrentPrice(selectedCurrency);
+                document.getElementById("currentPrice").textContent = `Precio Binance: $${parseFloat(currentPrice).toFixed(4)}`;
+            }
+
+        // Actualizar moneda seleccionada
+        document.getElementById("currency").addEventListener("change", function() {
+            selectedCurrency = this.value;
+        });
+
+        // Actualizar intervalo seleccionado
+        document.getElementById("interval").addEventListener("change", function() {
+            selectedInterval = this.value;
+        });
+
+        // Actualizar límite de velas seleccionado
+        document.getElementById("limit").addEventListener("change", function() {
+            selectedLimit = this.value;
+        });
+
+        // Iniciar la automatización cuando se presione el botón "Comenzar"
+        document.getElementById("startButton").addEventListener("click", function() {
+            isRunning = true;
+            document.getElementById("choch").textContent = "Cargando...";
+            document.getElementById("startButton").classList.add("hidden");
+            document.getElementById("stopButton").classList.remove("hidden");
+            main();  // Ejecutar la primera vez
+            startAutomation();  // Iniciar la automatización en intervalos
+        });
+
+        // Detener la automatización cuando se presione el botón "Detener"
+        document.getElementById("stopButton").addEventListener("click", function() {
+            isRunning = false;
+            stopAutomation();
+            document.getElementById("startButton").classList.remove("hidden");
+            document.getElementById("stopButton").classList.add("hidden");
+        });
+
+        // Función para mostrar la hora local y la diferencia con la hora de Nueva York
+        function displayMarketHours() {
+            const localTime = new Date();
+            const nyTime = new Date(localTime.toLocaleString("en-US", { timeZone: "America/New_York" }));
+            const londonTime = new Date(localTime.toLocaleString("en-US", { timeZone: "Europe/London" }));
+            const tokyoTime = new Date(localTime.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+            const sydneyTime = new Date(localTime.toLocaleString("en-US", { timeZone: "Australia/Sydney" }));
+
+            document.getElementById("nyMarket").textContent = `Nueva York: ${nyTime.toLocaleTimeString()} (${nyTime.getHours() - localTime.getHours()} horas)`;
+            document.getElementById("londonMarket").textContent = `Londres: ${londonTime.toLocaleTimeString()} (${londonTime.getHours() - localTime.getHours()} horas)`;
+            document.getElementById("tokyoMarket").textContent = `Tokio: ${tokyoTime.toLocaleTimeString()} (${tokyoTime.getHours() - localTime.getHours()} horas)`;
+            document.getElementById("sydneyMarket").textContent = `Sídney: ${sydneyTime.toLocaleTimeString()} (${sydneyTime.getHours() - localTime.getHours()} horas)`;
+        }
+
+        // Mostrar la hora de los mercados al cargar la página
+        document.addEventListener("DOMContentLoaded", displayMarketHours);
+    </script>
+</body>
+</html>
